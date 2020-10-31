@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/metric_system"
+        android:title="@string/metric_system" />
+    <item android:id="@+id/imperial_system"
+        android:title="@string/imperial_system" />
+</menu>
