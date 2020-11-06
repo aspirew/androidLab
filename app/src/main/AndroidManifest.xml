@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BMICalc">
-        <activity android:name=".BmiDetails"></activity>
+        <activity android:name=".MeasurementHistory"></activity>
+        <activity android:name=".BmiDetails" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

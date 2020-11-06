@@ -4,4 +4,6 @@
         android:title="@string/metric_system" />
     <item android:id="@+id/imperial_system"
         android:title="@string/imperial_system" />
+    <item android:id="@+id/history"
+        android:title="Measurement history" />
 </menu>

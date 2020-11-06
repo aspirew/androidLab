@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/parent_layout">
+
+    <TextView
+        android:id="@+id/RVItemDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        />
+
+    <TextView
+        android:id="@+id/RVItemResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Result"
+        android:layout_below="@id/RVItemDate"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+         />
+
+    <TextView
+        android:id="@+id/RVItemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        android:layout_below="@id/RVItemDate"
+        android:layout_toRightOf="@id/RVItemResult"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/RVItemMass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mass"
+        android:layout_below="@id/RVItemResult"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/RVItemMassUnit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="[kg]"
+        android:layout_below="@id/RVItemResult"
+        android:layout_toRightOf="@id/RVItemMass"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/RVItemHeight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Height"
+        android:layout_below="@id/RVItemResult"
+        android:layout_toRightOf="@id/RVItemMassUnit"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/RVItemHeightUnit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="[cm]"
+        android:layout_below="@id/RVItemResult"
+        android:layout_toRightOf="@id/RVItemHeight"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp" />
+
+</RelativeLayout>

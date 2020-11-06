@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.bmicalc"
-        minSdkVersion 16
+        minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -34,6 +34,12 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    android.testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+        }
+    }
 }
 
 dependencies {
@@ -46,4 +52,10 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
+
+    testImplementation 'io.kotest:kotest-runner-junit5:4.3.1' // for kotest framework
+    testImplementation 'io.kotest:kotest-assertions-core:4.3.1'
+    testImplementation 'io.kotest:kotest-property:4.3.1'
 }
+
