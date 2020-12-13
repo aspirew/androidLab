@@ -1,10 +1,12 @@
 package com.example.bmicalc
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
+import android.provider.BaseColumns
 import android.text.Editable
 import android.view.Menu
 import android.view.MenuInflater
@@ -22,6 +24,7 @@ import java.time.LocalDateTime
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
+    lateinit var dbHelper: FeedReaderDbHelper
     var maxHeight = 0.0
     var minHeight = 0.0
     var maxMass = 0
@@ -36,11 +39,10 @@ class MainActivity : AppCompatActivity() {
 
     var systemOption = METRIC_SYSTEM
 
-
     val LAUNCH_SECOND_ACTIVITY = 1
 
     data class BmiClass(val name: String, val color: String, val description: String, val imageSource: Int)
-    data class Measurement(val date: String, val mass: Double, val height: Int, val system: Int, val value: Double, val name: String)
+    data class Measurement(val ID: Long?, val date: String, val mass: Double, val height: Int, val system: Int, val value: Double, val name: String)
 
     private val bmiOperation = BmiOperations()
 
@@ -105,19 +107,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setMetricSystem()
 
-        sharedPref = this.getPreferences(Context.MODE_PRIVATE)
-        val gson = Gson()
+        dbHelper = FeedReaderDbHelper(this)
 
-        val listType = object : TypeToken<List<Measurement?>?>() {}.type
-        val json: String? = sharedPref?.getString(
-                SHARED_PREF_KEY,
-                ""
-        )
+        loadDBData()
 
-        val measureHistory: List<Measurement?>? = gson.fromJson(json, listType)
-
-        if (measureHistory != null)
-            measures.addAll(gson.fromJson(json, listType))
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -154,15 +147,6 @@ class MainActivity : AppCompatActivity() {
             putDouble(LAST_BMI_RESULT, bmiResult)
         }
         super.onSaveInstanceState(outState)
-
-        val gson = Gson()
-
-        with(sharedPref!!.edit()) {
-            val json = gson.toJson(measures)
-            putString(SHARED_PREF_KEY, json)
-            commit()
-        }
-
     }
 
 
@@ -183,6 +167,48 @@ class MainActivity : AppCompatActivity() {
         binding.apply {
             bmiTV.text = bmiResult.toString()
             bmiTV.setTextColor(Color.parseColor(bmiClass.color))
+        }
+
+        loadDBData()
+    }
+
+    fun loadDBData(){
+        val db = dbHelper.readableDatabase
+
+        val projection = arrayOf(
+                BaseColumns._ID,
+                FeedReaderContract.FeedEntry.DATE,
+                FeedReaderContract.FeedEntry.MASS,
+                FeedReaderContract.FeedEntry.HEIGHT,
+                FeedReaderContract.FeedEntry.SYSTEM,
+                FeedReaderContract.FeedEntry.VALUE,
+                FeedReaderContract.FeedEntry.NAME
+        )
+
+        val sortOrder = "${FeedReaderContract.FeedEntry.DATE}"
+
+        val cursor = db.query(
+                FeedReaderContract.FeedEntry.MEASUREMENTS_TABLE_NAME,   // The table to query
+                projection,             // The array of columns to return (pass null to get all)
+                null,              // The columns for the WHERE clause
+                null,          // The values for the WHERE clause
+                null,                   // don't group the rows
+                null,                   // don't filter by row groups
+                sortOrder               // The sort order
+        )
+
+        with(cursor) {
+            while (moveToNext()) {
+                val measure = Measurement(getLong(getColumnIndex(BaseColumns._ID)),
+                        getString(getColumnIndex(FeedReaderContract.FeedEntry.DATE)),
+                        getDouble(getColumnIndex(FeedReaderContract.FeedEntry.MASS)),
+                        getInt(getColumnIndex(FeedReaderContract.FeedEntry.HEIGHT)),
+                        getInt(getColumnIndex(FeedReaderContract.FeedEntry.SYSTEM)),
+                        getDouble(getColumnIndex(FeedReaderContract.FeedEntry.VALUE)),
+                        getString(getColumnIndex(FeedReaderContract.FeedEntry.NAME)),
+                )
+                measures.add(measure)
+            }
         }
     }
 
@@ -212,13 +238,28 @@ class MainActivity : AppCompatActivity() {
                 bmiTV.text = bmiResult.toString()
                 bmiTV.setTextColor(Color.parseColor(bmiClass.color))
 
-                val measure = Measurement(LocalDateTime.now().toString(), mass, height, systemOption, bmiResult, bmiClass.name)
+                val db = dbHelper.writableDatabase
 
-                if (measures.size >= HISTORY_CAPACITY)
-                    measures.removeFirst()
+                if (measures.size >= HISTORY_CAPACITY) {
+                    val deletedMeasure = measures.removeFirst()
+                    val selection = "${FeedReaderContract.FeedEntry.DATE} LIKE ?"
+                    val selectionArgs = arrayOf(deletedMeasure.date)
+                    db.delete(FeedReaderContract.FeedEntry.MEASUREMENTS_TABLE_NAME, selection, selectionArgs)
+                }
 
+                val values = ContentValues().apply {
+                    put(FeedReaderContract.FeedEntry.DATE, LocalDateTime.now().toString())
+                    put(FeedReaderContract.FeedEntry.MASS, mass)
+                    put(FeedReaderContract.FeedEntry.HEIGHT, height)
+                    put(FeedReaderContract.FeedEntry.SYSTEM, systemOption)
+                    put(FeedReaderContract.FeedEntry.VALUE, bmiResult)
+                    put(FeedReaderContract.FeedEntry.NAME, bmiClass.name)
+                }
+
+                val newRowId = db?.insert(FeedReaderContract.FeedEntry.MEASUREMENTS_TABLE_NAME, null, values)
+
+                val measure = Measurement(newRowId, LocalDateTime.now().toString(), mass, height, systemOption, bmiResult, bmiClass.name)
                 measures.add(measure)
-
             }
         }
     }
